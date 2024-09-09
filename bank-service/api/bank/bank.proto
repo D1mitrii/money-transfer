@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package bank;
+
+option go_package = "d1mitrii.bank.v1;bankv1";
+
+import "google/protobuf/empty.proto";
+
+service Bank {
+    rpc CreateAccount (CreateAccountRequest) returns (CreateAccountResponse);
+    rpc GetAccount (GetAccountRequest) returns (GetAccountResponse);
+    rpc DeleteAccount (DeleteAccountRequest) returns (google.protobuf.Empty);
+    rpc Deposit (DepositRequest) returns (google.protobuf.Empty);
+    rpc Withdraw (WithdrawRequest) returns (google.protobuf.Empty);
+    rpc Refund (RefundRequest) returns (google.protobuf.Empty);
+}
+
+message CreateAccountRequest {
+    string Name = 1;
+    int64 Balance = 2;
+}
+
+message CreateAccountResponse {
+    string AccountID = 1;
+}
+
+message GetAccountRequest {
+    string AccountID = 1;
+}
+
+message GetAccountResponse {
+    string AccountID = 1;
+    string Name = 2;
+    int64 Balance = 3;
+}
+
+message DeleteAccountRequest {
+    string AccountID = 1;
+}
+
+message DepositRequest {
+    string AccountID = 1;
+    int64 Amount = 2; 
+}
+
+message WithdrawRequest {
+    string AccountID = 1;
+    int64 Amount = 2; 
+}
+
+message RefundRequest {
+    string AccountID = 1;
+    int64 Amount = 2; 
+}
