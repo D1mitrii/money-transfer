@@ -2,22 +2,27 @@ package bank
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log/slog"
 
 	"github.com/d1mitrii/money-transfer/bank-service/internal/models"
+	"github.com/d1mitrii/money-transfer/bank-service/internal/repository/repoerr"
+	"github.com/d1mitrii/money-transfer/bank-service/internal/services/servicerr"
+	"github.com/google/uuid"
 )
 
 type (
 	AccountProvider interface {
-		CreateAccount(ctx context.Context, account models.Account) (string, error)
-		GetAccount(ctx context.Context, accountID string) (models.Account, error)
-		DeleteAccount(ctx context.Context, accountID string) error
+		CreateAccount(ctx context.Context, account models.Account) (uuid.UUID, error)
+		GetAccount(ctx context.Context, accountUUID uuid.UUID) (models.Account, error)
+		DeleteAccount(ctx context.Context, accountUUID uuid.UUID) error
 	}
 
 	BalanceProvider interface {
-		Deposit(ctx context.Context, accountID string) error
-		Withdraw(ctx context.Context, accountID string) error
-		Refund(ctx context.Context, accountID string) error
+		Deposit(ctx context.Context, details models.TransactionDetails) error
+		Withdraw(ctx context.Context, details models.TransactionDetails) error
+		Refund(ctx context.Context, details models.TransactionDetails) error
 	}
 
 	Bank struct {
@@ -37,4 +42,63 @@ func New(
 		accountProvider: accountProvider,
 		balanceProvider: balanceProvider,
 	}
+}
+
+func (b *Bank) CreateAccount(ctx context.Context, account models.Account) (uuid.UUID, error) {
+	const op = "Bank.CreateAccount"
+	log := b.log.With(
+		slog.String("op", op),
+		slog.String("account name", account.Name),
+	)
+	if account.Balance < 0 {
+		return uuid.Nil, servicerr.ErrInvalidArgument
+	}
+
+	id, err := b.accountProvider.CreateAccount(ctx, account)
+	if err != nil {
+		if errors.Is(err, repoerr.ErrAlreadyExist) {
+			log.Error("account already exist", slog.Any("err", err))
+			return uuid.Nil, servicerr.ErrAlreadyExist
+		}
+		log.Error("failed to create account", slog.Any("err", err))
+		return uuid.Nil, fmt.Errorf("%s: %w", op, err)
+	}
+	return id, nil
+}
+
+func (b *Bank) GetAccount(ctx context.Context, accountUUID uuid.UUID) (models.Account, error) {
+	const op = "Bank.GetAccount"
+	log := b.log.With(
+		slog.String("op", op),
+		slog.String("accountUUID", accountUUID.String()),
+	)
+
+	account, err := b.accountProvider.GetAccount(ctx, accountUUID)
+	if err != nil {
+		if errors.Is(err, repoerr.ErrNotFound) {
+			log.Error("account not found", slog.Any("err", err))
+		}
+		log.Error("failed to get account", slog.Any("err", err))
+		return models.Account{}, fmt.Errorf("%s: %w", op, err)
+	}
+	return account, nil
+}
+
+func (b *Bank) DeleteAccount(ctx context.Context, accountUUID uuid.UUID) error {
+	const op = "Bank.GetAccount"
+	log := b.log.With(
+		slog.String("op", op),
+		slog.String("accountUUID", accountUUID.String()),
+	)
+
+	err := b.accountProvider.DeleteAccount(ctx, accountUUID)
+	if err != nil {
+		if errors.Is(err, repoerr.ErrNotFound) {
+			log.Error("account not found", slog.Any("err", err))
+			return servicerr.ErrNotFound
+		}
+		log.Error("failed to delete account", slog.Any("err", err))
+		return fmt.Errorf("%s: %w", op, err)
+	}
+	return nil
 }
