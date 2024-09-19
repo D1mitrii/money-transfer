@@ -111,7 +111,7 @@ func (b *Bank) Deposit(ctx context.Context, details models.TransactionDetails) e
 	)
 
 	if details.Amount <= 0 {
-		log.Error("incorrect ammount")
+		log.Error("incorrect amount")
 		return servicerr.ErrInvalidArgument
 	}
 
@@ -135,7 +135,7 @@ func (b *Bank) Withdraw(ctx context.Context, details models.TransactionDetails) 
 	)
 
 	if details.Amount <= 0 {
-		log.Error("incorrect ammount")
+		log.Error("incorrect amount")
 		return servicerr.ErrInvalidArgument
 	}
 
@@ -159,7 +159,7 @@ func (b *Bank) Refund(ctx context.Context, details models.TransactionDetails) er
 	)
 
 	if details.Amount <= 0 {
-		log.Error("incorrect ammount")
+		log.Error("incorrect amount")
 		return servicerr.ErrInvalidArgument
 	}
 
