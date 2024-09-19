@@ -110,7 +110,7 @@ func (b *Bank) Deposit(ctx context.Context, details models.TransactionDetails) e
 		slog.String("accountUUID", details.TargetAccountUUID.String()),
 	)
 
-	if details.Amount < 0 {
+	if details.Amount <= 0 {
 		log.Error("incorrect ammount")
 		return servicerr.ErrInvalidArgument
 	}
@@ -134,7 +134,7 @@ func (b *Bank) Withdraw(ctx context.Context, details models.TransactionDetails) 
 		slog.String("accountUUID", details.TargetAccountUUID.String()),
 	)
 
-	if details.Amount < 0 {
+	if details.Amount <= 0 {
 		log.Error("incorrect ammount")
 		return servicerr.ErrInvalidArgument
 	}
@@ -158,7 +158,7 @@ func (b *Bank) Refund(ctx context.Context, details models.TransactionDetails) er
 		slog.String("accountUUID", details.TargetAccountUUID.String()),
 	)
 
-	if details.Amount < 0 {
+	if details.Amount <= 0 {
 		log.Error("incorrect ammount")
 		return servicerr.ErrInvalidArgument
 	}
