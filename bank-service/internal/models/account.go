@@ -1,11 +1,15 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Account struct {
-	ID        string
-	Name      string
-	Balance   int64
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	UUID      uuid.UUID `db:"uuid"`
+	Name      string    `db:"account_name"`
+	Balance   int64     `db:"balance"`
+	CreatedAt time.Time `db:"created_at"`
+	UpdatedAt time.Time `db:"updated_at"`
 }
