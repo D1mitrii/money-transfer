@@ -9,29 +9,10 @@ import (
 	"github.com/d1mitrii/money-transfer/bank-service/internal/services/servicerr"
 	bankv1 "github.com/d1mitrii/money-transfer/bank-service/pkg/grpc/bank/v1"
 	"github.com/google/uuid"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
-
-type Bank interface {
-	CreateAccount(ctx context.Context, account models.Account) (uuid.UUID, error)
-	GetAccount(ctx context.Context, accountUUID uuid.UUID) (models.Account, error)
-	DeleteAccount(ctx context.Context, accountUUID uuid.UUID) error
-	Deposit(ctx context.Context, details models.TransactionDetails) error
-	Withdraw(ctx context.Context, details models.TransactionDetails) error
-	Refund(ctx context.Context, details models.TransactionDetails) error
-}
-
-type bankAPI struct {
-	bankv1.UnimplementedBankServer
-	bank Bank
-}
-
-func Register(server *grpc.Server, bank Bank) {
-	bankv1.RegisterBankServer(server, &bankAPI{bank: bank})
-}
 
 func (b *bankAPI) CreateAccount(ctx context.Context, in *bankv1.CreateAccountRequest) (*bankv1.CreateAccountResponse, error) {
 	if len(in.GetName()) == 0 {
