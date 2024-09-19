@@ -102,3 +102,75 @@ func (b *Bank) DeleteAccount(ctx context.Context, accountUUID uuid.UUID) error {
 	}
 	return nil
 }
+
+func (b *Bank) Deposit(ctx context.Context, details models.TransactionDetails) error {
+	const op = "Bank.Deposit"
+	log := b.log.With(
+		slog.String("op", op),
+		slog.String("accountUUID", details.TargetAccountUUID.String()),
+	)
+
+	if details.Amount < 0 {
+		log.Error("incorrect ammount")
+		return servicerr.ErrInvalidArgument
+	}
+
+	if err := b.balanceProvider.Deposit(ctx, details); err != nil {
+		if errors.Is(err, repoerr.ErrNotFound) {
+			log.Error("account not found", slog.Any("err", err))
+			return servicerr.ErrNotFound
+		}
+		log.Error("deposit failed", slog.Any("err", err))
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+func (b *Bank) Withdraw(ctx context.Context, details models.TransactionDetails) error {
+	const op = "Bank.Withdraw"
+	log := b.log.With(
+		slog.String("op", op),
+		slog.String("accountUUID", details.TargetAccountUUID.String()),
+	)
+
+	if details.Amount < 0 {
+		log.Error("incorrect ammount")
+		return servicerr.ErrInvalidArgument
+	}
+
+	if err := b.balanceProvider.Withdraw(ctx, details); err != nil {
+		if errors.Is(err, repoerr.ErrNotFound) {
+			log.Error("account not found", slog.Any("err", err))
+			return servicerr.ErrNotFound
+		}
+		log.Error("withdraw failed", slog.Any("err", err))
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+func (b *Bank) Refund(ctx context.Context, details models.TransactionDetails) error {
+	const op = "Bank.Refund"
+	log := b.log.With(
+		slog.String("op", op),
+		slog.String("accountUUID", details.TargetAccountUUID.String()),
+	)
+
+	if details.Amount < 0 {
+		log.Error("incorrect ammount")
+		return servicerr.ErrInvalidArgument
+	}
+
+	if err := b.balanceProvider.Refund(ctx, details); err != nil {
+		if errors.Is(err, repoerr.ErrNotFound) {
+			log.Error("account not found", slog.Any("err", err))
+			return servicerr.ErrNotFound
+		}
+		log.Error("refund failed", slog.Any("err", err))
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
