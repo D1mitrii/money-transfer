@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package bank;
 
-option go_package = "d1mitrii.bank.v1;bankv1";
+option go_package = "grpc/bank/v1;bankv1";
 
 import "google/protobuf/empty.proto";
 
@@ -21,34 +21,34 @@ message CreateAccountRequest {
 }
 
 message CreateAccountResponse {
-    string AccountID = 1;
+    string AccountUUID = 1;
 }
 
 message GetAccountRequest {
-    string AccountID = 1;
+    string AccountUUID = 1;
 }
 
 message GetAccountResponse {
-    string AccountID = 1;
+    string AccountUUID = 1;
     string Name = 2;
     int64 Balance = 3;
 }
 
 message DeleteAccountRequest {
-    string AccountID = 1;
+    string AccountUUID = 1;
 }
 
 message DepositRequest {
-    string AccountID = 1;
+    string AccountUUID = 1;
     int64 Amount = 2; 
 }
 
 message WithdrawRequest {
-    string AccountID = 1;
+    string AccountUUID = 1;
     int64 Amount = 2; 
 }
 
 message RefundRequest {
-    string AccountID = 1;
+    string AccountUUID = 1;
     int64 Amount = 2; 
 }
