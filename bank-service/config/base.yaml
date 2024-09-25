@@ -1,0 +1,6 @@
+grpc:
+  port: 9090
+  timeout: 5s
+postgres:
+  url: postgres://postgres:5432@bank-postgres:5432/bank
+  max_pool_size: 10
