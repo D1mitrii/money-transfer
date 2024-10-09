@@ -1,0 +1,42 @@
+services:
+  # worker:
+  #   container_name: temporal-transfer-worker
+  #   build: worker/
+
+  bank:
+    container_name: bank-service
+    build: bank-service/
+    env_file:
+      - example.env
+    networks:
+      - bank-network
+    expose:
+      - "9090"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    container_name: bank-postgres
+    hostname: bank-postgres
+    image: postgres:16-alpine
+    env_file:
+      - example.env
+    ports:
+      - 8765:5432
+    healthcheck:
+        test: pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
+        interval: 10s
+        timeout: 5s
+        retries: 5
+    networks:
+      - bank-network
+    volumes:
+      - bank-data:/var/lib/postgresql
+
+
+networks:
+  bank-network:
+
+volumes:
+  bank-data:
